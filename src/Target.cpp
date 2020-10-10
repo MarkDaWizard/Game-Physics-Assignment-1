@@ -1,3 +1,7 @@
+#pragma once
+#ifndef _TARGET_
+#define _TARGET_
+
 #include "Target.h"
 #include "TextureManager.h"
 
@@ -5,7 +9,8 @@
 Target::Target()
 {
 	TextureManager::Instance()->load("../Assets/textures/Circle.png","circle");
-
+	
+	
 	const auto size = TextureManager::Instance()->getTextureSize("circle");
 	setWidth(size.x);
 	setHeight(size.y);
@@ -41,7 +46,15 @@ void Target::clean()
 
 void Target::m_move()
 {
-	getTransform()->position = getTransform()->position + getRigidBody()->velocity * 5.0f;
+	float deltaTime = 1.0f / 60;
+	glm::vec2 gravity = glm::vec2(0, 9.8);
+	
+	getRigidBody()->acceleration += gravity * deltaTime;
+	getRigidBody()->velocity += (getRigidBody()->acceleration + gravity) * deltaTime;
+	if (!isGravityEnabled) getRigidBody()->velocity.y = 0;
+	getTransform()->position = getTransform()->position + getRigidBody()->velocity * deltaTime;
+
+	
 }
 
 void Target::m_checkBounds()
@@ -51,3 +64,10 @@ void Target::m_checkBounds()
 void Target::m_reset()
 {
 }
+void Target::doThrow()
+{
+	getTransform()->position = throwPosition;
+	getRigidBody()->velocity = throwSpeed;
+}
+
+#endif

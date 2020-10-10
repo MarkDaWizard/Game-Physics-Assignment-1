@@ -17,13 +17,15 @@ PlayScene::~PlayScene()
 
 void PlayScene::draw()
 {
-	if(EventManager::Instance().isIMGUIActive())
+	TextureManager::Instance()->draw("background", 500, 40, 0, 255, true);
+
+	drawDisplayList();
+	SDL_SetRenderDrawColor(Renderer::Instance()->getRenderer(), 255, 255, 255, 255);
+	if (EventManager::Instance().isIMGUIActive())
 	{
 		GUI_Function();
 	}
 
-	drawDisplayList();
-	SDL_SetRenderDrawColor(Renderer::Instance()->getRenderer(), 255, 255, 255, 255);
 }
 
 void PlayScene::update()
@@ -116,17 +118,20 @@ void PlayScene::handleEvents()
 
 void PlayScene::start()
 {
+	TextureManager::Instance()->load("../Assets/textures/Background.png", "background");
+
+	
 	// Set GUI Title
 	m_guiTitle = "Play Scene";
-	
-	// Plane Sprite
-	m_pPlaneSprite = new Plane();
-	addChild(m_pPlaneSprite);
 
 	// Player Sprite
 	m_pPlayer = new Player();
 	addChild(m_pPlayer);
 	m_playerFacingRight = true;
+
+	// Thermal Detonator
+	m_pBall = new Target();
+	addChild(m_pBall);
 
 	// Back Button
 	m_pBackButton = new Button("../Assets/textures/backButton.png", "backButton", BACK_BUTTON);
@@ -184,26 +189,36 @@ void PlayScene::GUI_Function() const
 	// See examples by uncommenting the following - also look at imgui_demo.cpp in the IMGUI filter
 	//ImGui::ShowDemoWindow();
 	
-	ImGui::Begin("Your Window Title Goes Here", NULL, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_MenuBar);
+	ImGui::Begin("Physics Controls", NULL, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_MenuBar);
 
-	if(ImGui::Button("My Button"))
+	if(ImGui::Button("Throw"))
 	{
-		std::cout << "My Button Pressed" << std::endl;
+		m_pBall->doThrow();
 	}
-
+	
 	ImGui::Separator();
 
-	static float float3[3] = { 0.0f, 1.0f, 1.5f };
-	if(ImGui::SliderFloat3("My Slider", float3, 0.0f, 2.0f))
+	static bool isGravityEnabled = false;
+	if (ImGui::Checkbox("Gravity", &isGravityEnabled))
 	{
-		std::cout << float3[0] << std::endl;
-		std::cout << float3[1] << std::endl;
-		std::cout << float3[2] << std::endl;
-		std::cout << "---------------------------\n";
+		m_pBall->isGravityEnabled = isGravityEnabled;
+	}
+	
+	static int xPlayerPos = 300;
+	if (ImGui::SliderInt("Player Position X", &xPlayerPos, 16, 784)) {
+		m_pPlayer->getTransform()->position.x = xPlayerPos;
+		m_pBall->throwPosition = glm::vec2(xPlayerPos, 300);
+	}
+
+	static float velocity[2] = { 0,0 };
+	if (ImGui::SliderFloat2("Throw Speed", velocity, 0, 500))
+	{
+		m_pBall->throwSpeed = glm::vec2(velocity[0], velocity[1]);
 	}
 	
 	ImGui::End();
-
+	ImGui::EndFrame();
+	
 	// Don't Remove this
 	ImGui::Render();
 	ImGuiSDL::Render(ImGui::GetDrawData());
