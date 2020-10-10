@@ -1,3 +1,4 @@
+
 #pragma once
 #ifndef __PLANE__
 #define __PLANE__
@@ -15,8 +16,8 @@ public:
 	virtual void update() override;
 	virtual void clean() override;
 
-private:
-	void m_buildAnimations();
 };
 
 #endif /* defined (__PLANE__) */
+
+
