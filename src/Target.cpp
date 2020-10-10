@@ -8,7 +8,7 @@
 
 Target::Target()
 {
-	TextureManager::Instance()->load("../Assets/textures/Circle.png","circle");
+	TextureManager::Instance()->load("../Assets/textures/Thermal.png","circle");
 	
 	
 	const auto size = TextureManager::Instance()->getTextureSize("circle");

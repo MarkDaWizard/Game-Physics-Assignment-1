@@ -209,11 +209,12 @@ void PlayScene::GUI_Function() const
 		m_pPlayer->getTransform()->position.x = xPlayerPos;
 		m_pBall->throwPosition = glm::vec2(xPlayerPos, 300);
 	}
-
+	if (m_pBall -> getTransform()->position.y > 300.0f)
+		m_pBall->getRigidBody()->velocity = glm::vec2(0, 0);
 	static float velocity[2] = { 0,0 };
 	if (ImGui::SliderFloat2("Throw Speed", velocity, 0, 500))
 	{
-		m_pBall->throwSpeed = glm::vec2(velocity[0], velocity[1]);
+		m_pBall->throwSpeed = glm::vec2(velocity[0], -velocity[1]);
 	}
 	
 	ImGui::End();
